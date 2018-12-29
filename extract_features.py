@@ -56,9 +56,11 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
     if not os.path.exists(temp_path):
         os.mkdir(temp_path)
 
+    error_fid = open('error.txt', 'a')
+
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
-    f = h5py.File(os.path.join(save_dir, save_name+'-{}~{}'.format(args.start,args.end)), 'w')
+    f = h5py.File(os.path.join(save_dir, save_name+'-{}~{}'.format(args.start,args.end)), 'a')
 
     max_time = 30
     stride = 4
@@ -80,6 +82,10 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
 
         image_list = sorted(os.listdir(frame_path))[:-1]
         total_frames = min(len(image_list), fps*max_time)
+        if total_frames == 0:
+            error_fid.write(video_name + '\n')
+            print('Fail to extract frames for video: %s' % video_name)
+            continue
         nb_segments = round(total_frames / fps)
         valid_frames = min(nb_segments*fps, total_frames)
         image_list = image_list[:valid_frames]
