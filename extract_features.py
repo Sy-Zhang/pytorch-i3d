@@ -17,14 +17,14 @@ random.seed(0)
 parser = argparse.ArgumentParser()
 parser.add_argument('-mode', default='rgb', type=str, help='rgb or flow')
 parser.add_argument('-load_model', default='models/rgb_imagenet.pt', type=str)
-parser.add_argument('-video_list_file', default='/localdisk/szhang83/Developer/LocalizingMoments/data/video_list.txt', type=str)
-parser.add_argument('-root', default='/localdisk/szhang83/Developer/LocalizingMoments/download/videos', type=str)
+parser.add_argument('-video_list_file', default='/localdisk/szhang83/Developer/TALL/exp_data/Charades_STA/video_list.txt', type=str)
+parser.add_argument('-root', default='/localdisk/szhang83/Developer/TALL/exp_data/Charades_STA/Charades_v1_480', type=str)
 parser.add_argument('-gpu', default='3', type=str)
-parser.add_argument('-save_dir', default='/localdisk/szhang83/Developer/LocalizingMoments/data/i3d', type=str)
+parser.add_argument('-save_dir', default='/localdisk/szhang83/Developer/TALL/exp_data/Charades_STA/i3d', type=str)
 parser.add_argument('-save_name', default='i3d_features.h5', type=str)
 parser.add_argument('-batch_size', default=12, type=str)
 parser.add_argument('-start', default=0, type=int)
-parser.add_argument('-end', default=10643, type=int)
+parser.add_argument('-end', default=6672, type=int)
 args = parser.parse_args()
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
@@ -60,7 +60,7 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
 
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
-    f = h5py.File(os.path.join(save_dir, save_name+'-{}~{}'.format(args.start,args.end)), 'a')
+    f = h5py.File(os.path.join(save_dir, save_name+'-{}~{}'.format(args.start,args.end)), 'w')
 
     max_time = 30
     stride = 4
@@ -122,7 +122,7 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
 
         features = torch.cat(features, 0)
         features = features.detach().numpy()
-        f.create_dataset(video_names[video_id], data=features)
+        f.create_dataset(video_name, data=features)
         print('%s has been processed...' % video_names[video_id])
 
         # clear temp frame folders
