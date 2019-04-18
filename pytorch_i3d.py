@@ -329,4 +329,5 @@ class InceptionI3d(nn.Module):
         for end_point in self.VALID_ENDPOINTS:
             if end_point in self.end_points:
                 x = self._modules[end_point](x)
+                pass
         return self.avg_pool(x)
