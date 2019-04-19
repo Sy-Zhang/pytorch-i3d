@@ -10,7 +10,6 @@ import transforms
 import torch.nn.functional as F
 from pytorch_i3d import InceptionI3d
 from PIL import Image
-import mmcv
 import random
 random.seed(0)
 
@@ -70,7 +69,6 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
             continue
         video_path = os.path.join(root, video_names[video_id])
         print('video_path', video_path)
-        video = mmcv.VideoReader(video_path)
         frame_path = os.path.join(temp_path, video_id)
         if not os.path.exists(frame_path):
             os.mkdir(frame_path)
