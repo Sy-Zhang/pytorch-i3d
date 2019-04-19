@@ -23,13 +23,14 @@ parser.add_argument('-gpu', default='1', type=str)
 parser.add_argument('-save_dir', default='/localdisk/szhang83/Developer/LocalizingMoments/i3d_data', type=str)
 parser.add_argument('-save_name', default='i3d_features.h5', type=str)
 parser.add_argument('-batch_size', default=12, type=str)
+parser.add_argument('-fps', default=10, type=int)
 parser.add_argument('-start', default=0, type=int)
-parser.add_argument('-end', default=6672, type=int)
+parser.add_argument('-end', default=10642, type=int)
 args = parser.parse_args()
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
 
-def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size, fps = 25):
+def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size, fps):
     trans = torchvision.transforms.Compose([
         transforms.GroupResize(256, interpolation=Image.BILINEAR),
         transforms.GroupCenterCrop(224),
@@ -61,7 +62,6 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
     f = h5py.File(os.path.join(save_dir, save_name+'-{}~{}'.format(args.start,args.end)), 'w')
 
     max_time = 30
-    stride = 5
 
     for video_name in video_list:
         video_id = video_name.split('.')[0]
@@ -84,12 +84,10 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
             error_fid.write(video_name + '\n')
             print('Fail to extract frames for video: %s' % video_name)
             continue
-        nb_segments = round(total_frames / fps)
-        valid_frames = min(nb_segments*fps+stride, total_frames)
+        n_feat = total_frames // fps
+        valid_frames = n_feat*fps
         image_list = image_list[:valid_frames]
 
-        sample_list = list(range(stride,valid_frames-stride,stride))
-        n_feat = len(sample_list)
         n_batch = n_feat // batch_size
         if n_feat - n_batch * batch_size > 0:
             n_batch = n_batch + 1
@@ -101,7 +99,7 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
             num_sample = batch_size if i < n_batch-1 else n_feat-(n_batch-1) * batch_size
             for j in range(num_sample):
                 imgs = [Image.open(os.path.join(frame_path, image_list[k])) for k in
-                        range(sample_list[i * batch_size + j]-stride, sample_list[i * batch_size + j]+stride)]
+                        range((i * batch_size + j)*fps, fps*(i * batch_size + j+1))]
                 imgs = trans(imgs)
                 input_blobs.append(imgs)
             input_blobs = torch.stack(input_blobs).permute(0, 4, 1, 2, 3).cuda()
@@ -110,7 +108,8 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
 
         features = torch.cat(features, 0)
         features = features.detach().numpy()
-        f.create_dataset(video_name, data=features)
+        np.save(os.path.join(save_dir,video_id),features)
+        # f.create_dataset(video_name, data=features)
         print('%s has been processed...' % video_names[video_id])
 
 
@@ -122,4 +121,5 @@ if __name__ == '__main__':
         save_dir=args.save_dir,
         save_name=args.save_name,
         video_list_file=args.video_list_file,
-        batch_size=args.batch_size)
+        batch_size=args.batch_size,
+        fps=args.fps)
