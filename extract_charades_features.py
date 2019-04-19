@@ -37,7 +37,6 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
         transforms.ToTorchFormatTensor4d(div=True),
         transforms.GroupNormalize(mean=[.5, .5, .5],std=[.5, .5, .5])
     ])
-    nb_frames = 9
     if mode == 'flow':
         i3d = InceptionI3d(400, in_channels=2)
     else:
@@ -62,8 +61,7 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
         os.mkdir(save_dir)
     f = h5py.File(os.path.join(save_dir, save_name+'-{}~{}'.format(args.start,args.end)), 'w')
 
-    max_time = 30
-    stride = 4
+    stride = 5
 
     for video_name in video_list:
         video_id = video_name.split('.')[0]
@@ -81,13 +79,13 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
         os.system('/localdisk/szhang83/.linuxbrew/bin/ffmpeg -i ' + video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
 
         image_list = sorted(os.listdir(frame_path))[:-1]
-        total_frames = min(len(image_list), fps*max_time)
+        total_frames = len(image_list)
         if total_frames == 0:
             error_fid.write(video_name + '\n')
             print('Fail to extract frames for video: %s' % video_name)
             continue
         nb_segments = round(total_frames / fps)
-        valid_frames = min(nb_segments*fps, total_frames)
+        valid_frames = min(nb_segments*fps+stride, total_frames)
         image_list = image_list[:valid_frames]
 
         sample_list = list(range(stride,valid_frames-stride,stride))
@@ -98,27 +96,17 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
         print('n_frames: %d; n_feat: %d; n_batch: %d' % (total_frames, n_feat, n_batch))
 
         features = []
-        for i in range(n_batch-1):
+        for i in range(n_batch):
             input_blobs = []
-            for j in range(batch_size):
+            num_sample = batch_size if i < n_batch-1 else n_feat-(n_batch-1) * batch_size
+            for j in range(num_sample):
                 imgs = [Image.open(os.path.join(frame_path, image_list[k])) for k in
-                        range(sample_list[i * batch_size + j]-stride, sample_list[i * batch_size + j]+stride+1)]
+                        range(sample_list[i * batch_size + j]-stride, sample_list[i * batch_size + j]+stride)]
                 imgs = trans(imgs)
                 input_blobs.append(imgs)
             input_blobs = torch.stack(input_blobs).permute(0, 4, 1, 2, 3).cuda()
-            batch_output = i3d.extract_features(input_blobs).view(batch_size,-1)
+            batch_output = i3d.extract_features(input_blobs).view(num_sample,-1)
             features.append(batch_output.cpu().detach())
-
-        # The last batch
-        input_blobs = []
-        for j in range(n_feat - (n_batch - 1) * batch_size):
-            imgs = [Image.open(os.path.join(frame_path, image_list[k])) for k in
-                    range(sample_list[i * batch_size + j] - stride, sample_list[i * batch_size + j] + stride + 1)]
-            imgs = trans(imgs)
-            input_blobs.append(imgs)
-        input_blobs = torch.stack(input_blobs).permute(0, 4, 1, 2, 3).cuda()
-        batch_output = i3d.extract_features(input_blobs).view(n_feat - (n_batch - 1) * batch_size,-1)
-        features.append(batch_output.cpu().detach())
 
         features = torch.cat(features, 0)
         features = features.detach().numpy()

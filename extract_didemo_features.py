@@ -79,7 +79,7 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
         os.system('/localdisk/szhang83/.linuxbrew/bin/ffmpeg -i ' + video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
 
         image_list = sorted(os.listdir(frame_path))[:-1]
-        total_frames = len(image_list)
+        total_frames = min(len(image_list), fps*max_time)
         if total_frames == 0:
             error_fid.write(video_name + '\n')
             print('Fail to extract frames for video: %s' % video_name)
