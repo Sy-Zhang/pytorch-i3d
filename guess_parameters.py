@@ -15,6 +15,7 @@ trans = torchvision.transforms.Compose([
     torchvision.transforms.CenterCrop(224),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(mean=[.5, .5, .5], std=[.5, .5, .5])
+    # torchvision.transforms.Normalize(mean=[.434, .405, .378], std=[.152, .149, .157])
 ])
 test_transforms = torchvision.transforms.Compose([videotransforms.CenterCrop(224)])
 
@@ -23,7 +24,7 @@ image_list = sorted(os.listdir(image_dir))
 
 images = []
 for i in image_list:
-    img = cv2.imread(os.path.join(image_dir, i))[:, :, [2, 1, 0]]
+    # img = cv2.imread(os.path.join(image_dir, i))[:, :, [2, 1, 0]]
     # w,h,c = img.shape
     # if w < 226 or h < 226:
     #     d = 226.-min(w,h)
@@ -31,7 +32,8 @@ for i in image_list:
     #     img = cv2.resize(img,dsize=(0,0),fx=sc,fy=sc)
     # img = (img/255.)*2 - 1
     # images.append(img)
-    # img = Image.open(os.path.join(image_dir, i))
+
+    img = Image.open(os.path.join(image_dir, i))
     img = trans(img).permute(1, 2, 0)
     images.append(img.numpy())
 # images = test_transforms(np.array(images))

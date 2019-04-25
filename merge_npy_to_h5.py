@@ -5,7 +5,7 @@ import numpy as np
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-root', default='/localdisk/szhang83/Developer/', type=str)
-parser.add_argument('-npy_dir', default='/localdisk/szhang83/Developer/LocalizingMoments/i3d_features', type=str)
+parser.add_argument('-npy_dir', default='/localdisk/szhang83/Developer/LocalizingMoments/i3d_features/i3d_features_25fps', type=str)
 parser.add_argument('-save_dir', default='/localdisk/szhang83/Developer/LocalizingMoments/data', type=str)
 parser.add_argument('-save_name', default='i3d_features.h5', type=str)
 parser.add_argument('-video_list_file', default='/localdisk/szhang83/Developer/LocalizingMoments/data/video_list.txt', type=str)
