@@ -78,7 +78,7 @@ def run(mode, root, load_model, save_dir, save_name, video_list_file, batch_size
         # example: ffmpeg -i video_validation_0000051.mp4 -q:v 2 -f image2 output/image%5d.jpg
         os.system('/localdisk/szhang83/.linuxbrew/bin/ffmpeg -i ' + video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
 
-        image_list = sorted(os.listdir(frame_path))[:-1]
+        image_list = sorted(os.listdir(frame_path))
         total_frames = min(len(image_list), fps*max_time)
         if total_frames == 0:
             error_fid.write(video_name + '\n')
