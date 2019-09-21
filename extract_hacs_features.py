@@ -18,9 +18,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-mode', default='rgb', type=str, help='rgb or flow')
 parser.add_argument('-load_model', default='models/rgb_imagenet.pt', type=str)
 parser.add_argument('-video_list_file', default='videos.txt', type=str)
-parser.add_argument('-root', default='/data/home2/hacker01/Data/HACS-Segments', type=str)
-parser.add_argument('-save_dir', default='/data/home2/hacker01/Data/HACS-Features', type=str)
-parser.add_argument('-batch_size', default=12, type=str)
+parser.add_argument('-root', default='/data/home2/hacker01/MSM/Data/HACS-Segments', type=str)
+parser.add_argument('-save_dir', default='/data/home2/hacker01/MSM/Data/HACS-Features', type=str)
+parser.add_argument('-batch_size', default=12, type=int)
 parser.add_argument('-start', default=0, type=int)
 parser.add_argument('-end', default=6672, type=int)
 args = parser.parse_args()
@@ -54,7 +54,7 @@ def run(mode, root, load_model, save_dir, video_list_file, batch_size, fps = 24)
 
     stride = 8
 
-    for video_path in video_list[:20000]:
+    for video_path in video_list[10000:20000]:
         video_id = video_path.split('/')[-1].split('.')[0]
         save_path = os.path.join(save_dir,video_id+'.npy')
         if os.path.exists(save_path):
