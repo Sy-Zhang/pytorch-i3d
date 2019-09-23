@@ -112,10 +112,7 @@ def run(mode, root, load_model, save_dir, video_list_file, batch_size, fps = 24)
         print('%s has been processed...' % video_id)
 
         # clear temp frame folders
-        try:
-            os.system('rm -rf ' + frame_path)
-        except:
-            pass
+        os.system('rm -rf ' + frame_path)
 
 if __name__ == '__main__':
     # need to add argparse
