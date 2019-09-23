@@ -95,12 +95,12 @@ def run(mode, root, load_model, save_dir, video_list_file, batch_size, fps = 24)
         # example: ffmpeg -i video_validation_0000051.mp4 -q:v 2 -f image2 output/image%5d.jpg
 
         # for philly
-        # os.system('cp '+video_path+' '+frame_path)
-        # duplicate_video_path = os.path.join(frame_path, video_path.split('/')[-1])
-        # os.system('/home/v-yale/ffmpeg-4.2.1-amd64-static/ffmpeg -i ' + duplicate_video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
+        os.system('cp '+video_path+' '+frame_path)
+        duplicate_video_path = os.path.join(frame_path, video_path.split('/')[-1])
+        os.system('/home/v-yale/ffmpeg-4.2.1-amd64-static/ffmpeg -i ' + duplicate_video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
 
         # for gpu07
-        os.system('ffmpeg -i ' + video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
+        # os.system('ffmpeg -i ' + video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
 
         if mode == 'flow':
             os.system(
