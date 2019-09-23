@@ -54,7 +54,7 @@ def run(mode, root, load_model, save_dir, video_list_file, batch_size, fps = 24)
 
     stride = 8
 
-    for video_path in video_list[10000:20000]:
+    for video_path in video_list[10000:30000]:
         video_id = video_path.split('/')[-1].split('.')[0]
         save_path = os.path.join(save_dir,video_id+'.npy')
         if os.path.exists(save_path):
@@ -67,7 +67,14 @@ def run(mode, root, load_model, save_dir, video_list_file, batch_size, fps = 24)
         print('Extracting video frames ...')
         # using ffmpeg to extract video frames into a temporary folder
         # example: ffmpeg -i video_validation_0000051.mp4 -q:v 2 -f image2 output/image%5d.jpg
-        os.system('ffmpeg -i ' + video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
+
+        # for philly
+        os.system('cp '+video_path+' '+frame_path)
+        duplicate_video_path = os.path.join(frame_path, video_path.split('/')[-1])
+        os.system('/home/v-yale/ffmpeg-4.2.1-amd64-static/ffmpeg -i ' + duplicate_video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
+
+        # for gpu07
+        # os.system('ffmpeg -i ' + video_path + ' -q:v 2 -f image2 -vf fps={} '.format(fps) + frame_path + '/image_%6d.jpg')
 
         image_list = sorted(os.listdir(frame_path))[:-1]
         total_frames = len(image_list)
