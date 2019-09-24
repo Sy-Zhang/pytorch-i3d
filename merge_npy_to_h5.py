@@ -2,6 +2,7 @@ import argparse
 import h5py
 import os
 import numpy as np
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-npy_dir', default='/hdfs/resrchvc/v-yale/v-sozhan/Data/HACS-SF-RGB-Features/', type=str)
@@ -17,7 +18,10 @@ f = h5py.File(os.path.join(args.save_dir, args.save_name), 'w')
 video_list = open(args.video_list_file).readlines()
 video_list = [item.strip() for item in video_list]
 
+pbar = tqdm(len(video_list))
 for video_name in video_list:
     video_id = video_name.split('.')[0]
     features = np.load(os.path.join(args.npy_dir,video_id+'.npy'))
     f.create_dataset(video_name, data=features)
+    pbar.update(1)
+pbar.close()
