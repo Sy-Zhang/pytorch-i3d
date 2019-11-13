@@ -15,17 +15,17 @@ if not os.path.isdir(args.save_dir):
     os.mkdir(args.save_dir)
 f = h5py.File(os.path.join(args.save_dir, args.save_name), 'w')
 
-with open('/hdfs/resrchvc/v-yale/v-sozhan/Data/processed_videos.txt','r') as ff:
-    processed_vids =[l.strip() for l in ff.readlines()]
+# with open('/hdfs/resrchvc/v-yale/v-sozhan/Data/processed_videos.txt','r') as ff:
+#     processed_vids =[l.strip() for l in ff.readlines()]
 video_list = open(args.video_list_file).readlines()
 video_list = [item.strip() for item in video_list]
-video_list = [vid for vid in video_list if vid.split('/')[-1].split('.')[0] not in processed_vids]
+# video_list = [vid for vid in video_list if vid.split('/')[-1].split('.')[0] not in processed_vids]
 
 pbar = tqdm(total=len(video_list))
 for video_name in video_list[0:1000]:
     video_id = video_name.split('.')[0]
     try:
-        #print(os.path.join(args.npy_dir,video_id+'.npy'))
+        print(os.path.join(args.npy_dir,video_id+'.npy'))
         features = np.load(os.path.join(args.npy_dir,video_id+'.npy'))
     except:
         print('load error')
